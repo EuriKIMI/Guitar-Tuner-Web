@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Guitar Tuner</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      background: #121212;
+      color: white;
+      text-align: center;
+      padding: 2rem;
+    }
+
+    button {
+      background: #333;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      margin: 5px;
+      font-size: 1rem;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    button.active {
+      background: #00bcd4;
+    }
+
+    #note {
+      font-size: 3rem;
+      margin-top: 1rem;
+    }
+
+    #freq {
+      font-size: 1.5rem;
+      color: #ccc;
+    }
+
+    #feedback {
+      font-size: 1.2rem;
+      margin-top: 0.5rem;
+      color: #ccc;
+    }
+
+    .needle-container {
+      margin: 2rem auto;
+      width: 200px;
+      height: 100px;
+      position: relative;
+    }
+
+    .needle {
+      position: absolute;
+      width: 4px;
+      height: 100%;
+      background: red;
+      left: 50%;
+      transform-origin: bottom center;
+      transform: rotate(0deg);
+      transition: transform 0.1s ease-out;
+    }
+
+    .tick {
+      position: absolute;
+      bottom: 0;
+      width: 2px;
+      height: 10px;
+      background: #888;
+      left: 50%;
+    }
+
+    .controls {
+      margin-top: 1rem;
+    }
+
+    .accuracy-bar {
+      margin-top: 1.5rem;
+      width: 100%;
+      max-width: 300px;
+      height: 20px;
+      background: #333;
+      border-radius: 10px;
+      overflow: hidden;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .accuracy-fill {
+      height: 100%;
+      background: lightgreen;
+      width: 0%;
+      transition: width 0.1s ease-out;
+    }
+  </style>
+</head>
+<body>
+  <h1>🎵 Guitar Tuner</h1>
+  <button onclick="startTuner()">Start Tuning</button>
+
+  <div class="controls">
+    <p>Mode:</p>
+    <button id="autoBtn" class="active" onclick="setMode('auto')">Automatic</button>
+    <button id="manualBtn" onclick="setMode('manual')">Manual</button>
+
+    <div id="stringButtons" style="margin-top: 10px; display: none;">
+      <button onclick="selectString('E2')">E</button>
+      <button onclick="selectString('A2')">A</button>
+      <button onclick="selectString('D3')">D</button>
+      <button onclick="selectString('G3')">G</button>
+      <button onclick="selectString('B3')">B</button>
+      <button onclick="selectString('E4')">e</button>
+    </div>
+  </div>
+
+  <div id="note">&ndash;</div>
+  <div id="freq">&ndash; Hz</div>
+  <div id="feedback">&ndash;</div>
+
+  <div class="needle-container">
+    <div class="needle" id="needle"></div>
+    <div class="tick" style="transform: translateX(-90px);"></div>
+    <div class="tick" style="transform: translateX(-45px);"></div>
+    <div class="tick" style="transform: translateX(45px);"></div>
+    <div class="tick" style="transform: translateX(90px);"></div>
+  </div>
+
+  <div class="accuracy-bar">
+    <div id="accuracyFill" class="accuracy-fill"></div>
+  </div>
+
+  <script src="tuner.js"></script>
+</body>
+</html>
+ 

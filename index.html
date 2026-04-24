@@ -2,135 +2,370 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Guitar Tuner</title>
-  <style>
-    body {
-      font-family: sans-serif;
-      background: #121212;
-      color: white;
-      text-align: center;
-      padding: 2rem;
-    }
-
-    button {
-      background: #333;
-      color: white;
-      border: none;
-      padding: 10px 20px;
-      margin: 5px;
-      font-size: 1rem;
-      border-radius: 5px;
-      cursor: pointer;
-    }
-
-    button.active {
-      background: #00bcd4;
-    }
-
-    #note {
-      font-size: 3rem;
-      margin-top: 1rem;
-    }
-
-    #freq {
-      font-size: 1.5rem;
-      color: #ccc;
-    }
-
-    #feedback {
-      font-size: 1.2rem;
-      margin-top: 0.5rem;
-      color: #ccc;
-    }
-
-    .needle-container {
-      margin: 2rem auto;
-      width: 200px;
-      height: 100px;
-      position: relative;
-    }
-
-    .needle {
-      position: absolute;
-      width: 4px;
-      height: 100%;
-      background: red;
-      left: 50%;
-      transform-origin: bottom center;
-      transform: rotate(0deg);
-      transition: transform 0.1s ease-out;
-    }
-
-    .tick {
-      position: absolute;
-      bottom: 0;
-      width: 2px;
-      height: 10px;
-      background: #888;
-      left: 50%;
-    }
-
-    .controls {
-      margin-top: 1rem;
-    }
-
-    .accuracy-bar {
-      margin-top: 1.5rem;
-      width: 100%;
-      max-width: 300px;
-      height: 20px;
-      background: #333;
-      border-radius: 10px;
-      overflow: hidden;
-      margin-left: auto;
-      margin-right: auto;
-    }
-
-    .accuracy-fill {
-      height: 100%;
-      background: lightgreen;
-      width: 0%;
-      transition: width 0.1s ease-out;
-    }
-  </style>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Studio Guitar Tuner</title>
+  <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-  <h1> Guitar Tuner</h1>
-<button id="toggleTunerBtn" onclick="toggleTuner()">Start Tuning</button>
+  <main class="shell">
+    <section class="hero">
+      <article class="panel hero-copy">
+        <div class="hero-topline">
+          <div class="eyebrow">Live Pitch Detection</div>
+          <div class="hero-mini-copy">Practice suite for tuning, time, and harmony.</div>
+        </div>
 
-  <div class="controls">
-    <p>Mode:</p>
-    <button id="autoBtn" class="active" onclick="setMode('auto')">Automatic</button>
-    <button id="manualBtn" onclick="setMode('manual')">Manual</button>
+        <h1>Tune cleaner, hear richer, and practice with a stronger visual flow.</h1>
+        <p class="lead">
+          This studio-style tuner keeps pitch feedback front and center while giving your metronome,
+          chord guide, and progression practice their own clear visual space.
+        </p>
 
-    <div id="stringButtons" style="margin-top: 10px; display: none;">
-      <button onclick="selectString('E2')">E</button>
-      <button onclick="selectString('A2')">A</button>
-      <button onclick="selectString('D3')">D</button>
-      <button onclick="selectString('G3')">G</button>
-      <button onclick="selectString('B3')">B</button>
-      <button onclick="selectString('E4')">e</button>
-    </div>
-  </div>
+        <div class="toolbar">
+          <button id="toggleTunerBtn" class="primary-btn" type="button">Start Listening</button>
+          <button id="playReferenceBtn" class="ghost-btn" type="button">Play Reference Tone</button>
+        </div>
 
-  <div id="note">&ndash;</div>
-  <div id="freq">&ndash; Hz</div>
-  <div id="feedback">&ndash;</div>
+        <div class="stats">
+          <div class="stat">
+            <div class="stat-label">Detected Pitch</div>
+            <div id="freq" class="stat-value">-- Hz</div>
+          </div>
+          <div class="stat">
+            <div class="stat-label">Target</div>
+            <div id="targetDisplay" class="stat-value">Auto Detect</div>
+          </div>
+          <div class="stat">
+            <div class="stat-label">Offset</div>
+            <div id="centsDisplay" class="stat-value">0 cents</div>
+          </div>
+        </div>
 
-  <div class="needle-container">
-    <div class="needle" id="needle"></div>
-    <div class="tick" style="transform: translateX(-90px);"></div>
-    <div class="tick" style="transform: translateX(-45px);"></div>
-    <div class="tick" style="transform: translateX(45px);"></div>
-    <div class="tick" style="transform: translateX(90px);"></div>
-  </div>
+        <div class="hero-ribbon" aria-label="Practice tools">
+          <div class="ribbon-item">
+            <span class="ribbon-title">Metronome</span>
+            <span class="ribbon-copy">Accent-aware beat lane</span>
+          </div>
+          <div class="ribbon-item">
+            <span class="ribbon-title">Chord Guide</span>
+            <span class="ribbon-copy">Fretboard note map</span>
+          </div>
+          <div class="ribbon-item">
+            <span class="ribbon-title">Progressions</span>
+            <span class="ribbon-copy">Live harmony playback</span>
+          </div>
+        </div>
+      </article>
 
-  <div class="accuracy-bar">
-    <div id="accuracyFill" class="accuracy-fill"></div>
-  </div>
+      <article class="panel meter-panel">
+        <div class="status-row">
+          <div id="statusPill" class="status-pill">
+            <span class="status-dot"></span>
+            <span id="statusText">Microphone idle</span>
+          </div>
+          <div id="signalStrength" class="status-pill">Waiting for signal</div>
+        </div>
+
+        <div class="note-stack">
+          <p id="note" class="note-name">--</p>
+          <div id="noteMeta" class="note-meta">Start the tuner and pluck one string clearly.</div>
+        </div>
+
+        <div class="meter">
+          <div class="meter-scale">
+            <div class="meter-arc"></div>
+            <div class="tick major" style="transform: translateX(-50%) rotate(-50deg);"></div>
+            <div class="tick" style="transform: translateX(-50%) rotate(-30deg);"></div>
+            <div class="tick major" style="transform: translateX(-50%) rotate(-15deg);"></div>
+            <div class="tick major" style="transform: translateX(-50%) rotate(0deg);"></div>
+            <div class="tick major" style="transform: translateX(-50%) rotate(15deg);"></div>
+            <div class="tick" style="transform: translateX(-50%) rotate(30deg);"></div>
+            <div class="tick major" style="transform: translateX(-50%) rotate(50deg);"></div>
+
+            <div class="tick-label" style="transform: translateX(-50%) rotate(-42deg);">-50</div>
+            <div class="tick-label" style="transform: translateX(-50%) rotate(0deg);">0</div>
+            <div class="tick-label" style="transform: translateX(-50%) rotate(42deg);">+50</div>
+
+            <div id="needle" class="needle"></div>
+            <div class="needle-hub"></div>
+          </div>
+          <div class="meter-guidance">
+            <span>Flat</span>
+            <span>In Tune</span>
+            <span>Sharp</span>
+          </div>
+        </div>
+      </article>
+    </section>
+
+    <section class="signal-card-grid">
+      <article class="panel card">
+        <div class="section-head">
+          <div>
+            <div class="eyebrow eyebrow-soft">Tuning Focus</div>
+            <h2 class="section-title">Tuning Mode</h2>
+          </div>
+        </div>
+
+        <div class="mode-switch" role="tablist" aria-label="Tuning mode">
+          <button id="autoBtn" class="mode-btn active" type="button">Automatic</button>
+          <button id="manualBtn" class="mode-btn" type="button">Manual</button>
+        </div>
+        <p id="modeCopy" class="helper-text mode-copy">
+          Automatic mode listens for the closest pitch and finds the nearest note for you.
+        </p>
+
+        <div class="tuning-panel">
+          <label class="control-cluster" for="tuningSelect">
+            <span>Tuning Preset</span>
+            <select id="tuningSelect" class="preset-select">
+              <option value="standard">Standard E A D G B E</option>
+              <option value="dropD">Drop D</option>
+              <option value="halfStepDown">Half-Step Down</option>
+              <option value="dadgad">DADGAD</option>
+              <option value="openG">Open G</option>
+              <option value="openD">Open D</option>
+            </select>
+          </label>
+          <div id="tuningSummary" class="tuning-summary">6E 5A 4D 3G 2B 1E</div>
+        </div>
+
+        <div id="stringButtons" class="string-grid hidden">
+          <button class="string-btn" type="button" data-note="E2">
+            <span class="string-note">Low E</span>
+            <span class="string-freq">82.41 Hz</span>
+          </button>
+          <button class="string-btn" type="button" data-note="A2">
+            <span class="string-note">A</span>
+            <span class="string-freq">110.00 Hz</span>
+          </button>
+          <button class="string-btn" type="button" data-note="D3">
+            <span class="string-note">D</span>
+            <span class="string-freq">146.83 Hz</span>
+          </button>
+          <button class="string-btn" type="button" data-note="G3">
+            <span class="string-note">G</span>
+            <span class="string-freq">196.00 Hz</span>
+          </button>
+          <button class="string-btn" type="button" data-note="B3">
+            <span class="string-note">B</span>
+            <span class="string-freq">246.94 Hz</span>
+          </button>
+          <button class="string-btn" type="button" data-note="E4">
+            <span class="string-note">High E</span>
+            <span class="string-freq">329.63 Hz</span>
+          </button>
+        </div>
+      </article>
+
+      <article class="panel card metronome-card">
+        <div class="section-head">
+          <div>
+            <div class="eyebrow eyebrow-soft">Rhythm Module</div>
+            <h2 class="section-title">Metronome System</h2>
+          </div>
+          <div id="tempoBadge" class="status-pill tempo-pill">120 BPM</div>
+        </div>
+
+        <div class="metronome-stage">
+          <div class="tempo-dial" aria-hidden="true">
+            <div class="tempo-ring"></div>
+            <div class="tempo-ring tempo-ring-delayed"></div>
+            <div class="tempo-core">
+              <div id="metronomeBeat" class="beat-indicator"></div>
+              <strong id="tempoReadout" class="tempo-readout">120</strong>
+              <span class="tempo-unit">BPM</span>
+            </div>
+          </div>
+
+          <div class="metronome-readout">
+            <div class="display-row">
+              <span class="display-label">Subdivision</span>
+              <strong id="subdivisionLabel">Quarter notes</strong>
+            </div>
+            <div class="display-row">
+              <span class="display-label">Beat</span>
+              <strong id="beatCounter">1 / 4</strong>
+            </div>
+            <div class="display-row">
+              <span class="display-label">Feel</span>
+              <strong id="tempoFeel">Steady practice pocket</strong>
+            </div>
+          </div>
+        </div>
+
+        <div id="subdivisionTrack" class="subdivision-track" aria-hidden="true"></div>
+
+        <div class="metronome-controls">
+          <button id="toggleMetronomeBtn" class="ghost-btn" type="button">Metronome Off</button>
+
+          <label class="control-cluster" for="bpmInput">
+            <span>BPM</span>
+            <input id="bpmInput" type="number" min="30" max="300" value="120" />
+          </label>
+
+          <label class="control-cluster" for="subdivisionSelect">
+            <span>Subdivision</span>
+            <select id="subdivisionSelect" class="preset-select">
+              <option value="1">Quarter</option>
+              <option value="2">Eighth</option>
+              <option value="3">Triplet</option>
+              <option value="4">Sixteenth</option>
+            </select>
+          </label>
+
+          <button id="tapTempoBtn" class="ghost-btn" type="button">Tap Tempo</button>
+        </div>
+      </article>
+    </section>
+
+    <section class="practice-grid">
+      <article class="panel card feedback-card">
+        <div class="section-head">
+          <div>
+            <div class="eyebrow eyebrow-soft">Response</div>
+            <h2 class="section-title">Live Feedback</h2>
+          </div>
+        </div>
+
+        <p id="feedback" class="feedback-line">Ready when you are</p>
+        <p id="feedbackCopy" class="feedback-copy">
+          The needle and accuracy marker will respond as soon as the tuner catches a stable note.
+        </p>
+
+        <div class="accuracy-track" aria-hidden="true">
+          <div id="accuracyMarker" class="accuracy-marker" style="left: 50%;"></div>
+        </div>
+        <div class="accuracy-scale">
+          <span>-50 cents</span>
+          <span>Centered</span>
+          <span>+50 cents</span>
+        </div>
+
+        <p id="statusCopy" class="status-copy">
+          Use a quiet room and pluck one open string at a time for the fastest lock.
+        </p>
+      </article>
+
+      <section class="panel chord-lab" id="chordGuide">
+        <div class="section-head chord-head">
+          <div>
+            <div class="eyebrow eyebrow-soft">Harmony Coach</div>
+            <h2 class="section-title chord-title">Chord Guide and Progressions</h2>
+            <p class="helper-text chord-intro">
+              Hear fuller voicings, track common movement, and see the chord tones light up across the fretboard.
+            </p>
+          </div>
+        </div>
+
+        <div class="chord-toolbar">
+          <label class="control-cluster" for="chordRoot">
+            <span>Root</span>
+            <select id="chordRoot" class="preset-select">
+              <option>C</option>
+              <option>C#</option>
+              <option>D</option>
+              <option>D#</option>
+              <option>E</option>
+              <option>F</option>
+              <option>F#</option>
+              <option>G</option>
+              <option>G#</option>
+              <option>A</option>
+              <option>A#</option>
+              <option>B</option>
+            </select>
+          </label>
+
+          <label class="control-cluster" for="chordType">
+            <span>Type</span>
+            <select id="chordType" class="preset-select">
+              <option value="maj">Major</option>
+              <option value="min">Minor</option>
+              <option value="7">7</option>
+              <option value="maj7">Maj7</option>
+              <option value="m7">m7</option>
+            </select>
+          </label>
+
+          <label class="control-cluster" for="chordShapeSelect">
+            <span>Shape</span>
+            <select id="chordShapeSelect" class="preset-select"></select>
+          </label>
+
+          <button id="playChordBtn" class="ghost-btn" type="button">Play Chord</button>
+        </div>
+
+        <div class="chord-lab-grid">
+          <div class="chord-overview">
+            <div class="chord-badge-row">
+              <div id="chordDisplay" class="chord-display">--</div>
+              <div id="chordMood" class="status-pill chord-pill">Focused voicing</div>
+            </div>
+            <p id="chordFingering" class="helper-text chord-copy">Select a chord to see voicing and notes.</p>
+            <div id="intervalChips" class="interval-chips" aria-label="Chord intervals"></div>
+            <div id="chordNotes" class="note-pills" aria-label="Chord notes"></div>
+
+            <div class="shape-panel">
+              <div class="shape-panel-head">
+                <span>Playable shape</span>
+                <strong id="chordShapeName">Auto shape</strong>
+              </div>
+              <div id="chordShapeDiagram" class="chord-shape-diagram" aria-label="Playable chord shape"></div>
+              <p id="chordShapeSummary" class="helper-text shape-summary">
+                Shape guidance appears when a playable position is available.
+              </p>
+            </div>
+          </div>
+
+          <div class="fretboard-shell">
+            <div class="fretboard-meta">
+              <span>Strings 6 to 1</span>
+              <span>Frets 0 to 5</span>
+            </div>
+            <div id="fretboardMap" class="fretboard-map" aria-label="Chord notes on the fretboard"></div>
+            <p class="fretboard-caption">The map follows the selected tuning, with root notes glowing brightest.</p>
+          </div>
+        </div>
+
+        <div class="progression-panel">
+          <div class="progression-toolbar">
+            <label class="control-cluster" for="progressionSelect">
+              <span>Progression</span>
+              <select id="progressionSelect" class="preset-select">
+                <option value="I-IV-V">I - IV - V</option>
+                <option value="vi-IV-I-V">vi - IV - I - V</option>
+                <option value="ii-V-I">ii - V - I</option>
+                <option value="I-vi-IV-V">I - vi - IV - V</option>
+              </select>
+            </label>
+            <button id="playProgressionBtn" class="primary-btn" type="button">Play Progression</button>
+          </div>
+
+          <div id="progressionMap" class="progression-map" aria-label="Progression preview"></div>
+          <p id="progressionDescription" class="progression-preview">
+            Classic movement with clear tension and release in the selected key.
+          </p>
+        </div>
+      </section>
+    </section>
+
+    <section class="tips">
+      <article class="panel tip">
+        <h3>Pluck once, then let it ring</h3>
+        <p>A clean note gives the detector enough sustain to settle on the pitch instead of bouncing.</p>
+      </article>
+      <article class="panel tip">
+        <h3>Use manual mode for quick checks</h3>
+        <p>Targeting one string is especially helpful in noisy rooms or when harmonics confuse auto-detect.</p>
+      </article>
+      <article class="panel tip">
+        <h3>Listen and watch together</h3>
+        <p>Reference tones, progression playback, and the live meter work better together than either one alone.</p>
+      </article>
+    </section>
+  </main>
 
   <script src="tuner.js"></script>
 </body>
 </html>
- 
